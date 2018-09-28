@@ -24,7 +24,7 @@ eval 'val=$'"$var"
 if [ -z "$val" ]; then
 curl -s --user "api:${MAIL_GUN_KEY}" \
 https://api.mailgun.net/v3/"${MAIL_GUN_DOMAIN}"/messages \
--F from="Excited User <${MAIL_FROM_EMAIL}>" \
+-F from="Fail Server <${MAIL_FROM_EMAIL}>" \
 -F to="${MAIL_TO_EMAIL}" \
 -F subject='FAILED TO CREATE SERVER::VULTR' \
 -F text='SCRIPT FAILED EXECUTION - export variable missing'
