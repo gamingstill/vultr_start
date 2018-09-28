@@ -6,13 +6,54 @@ clear
 ROOT_UID=0
 E_NOTROOT=1
 HOMEDIR=/home
-USERNAME=${USERNAME:-tinygame}
+
+#server exports
+USERNAME=${USERNAME}
 USERNAME_UID=${USERNAME_UID:-1979}
+SSH_PUB_KEY1=${SSH_PUB_KEY1}
+
+#Mail gun exports
+MAIL_GUN_DOMAIN='kark.io'
+MAIL_GUN_KEY=${MAIL_GUN_KEY}
+MAIL_TO_EMAIL=${MAIL_TO_EMAIL}
+MAIL_FROM_EMAIL=${MAIL_FROM_EMAIL}
+
+
+for var in SSH_PUB_KEY1 USERNAME MAIL_TO_EMAIL MAIL_FROM_EMAIL MAIL_GUN_KEY MAIL_GUN_DOMAIN; do
+eval 'val=$'"$var"
+if [ -z "$val" ]; then
+curl -s --user "api:${MAIL_GUN_KEY}" \
+https://api.mailgun.net/v3/"${MAIL_GUN_DOMAIN}"/messages \
+-F from="Excited User <${MAIL_FROM_EMAIL}>" \
+-F to="${MAIL_TO_EMAIL}" \
+-F subject='FAILED TO CREATE SERVER::VULTR' \
+-F text='SCRIPT FAILED EXECUTION - export variable missing'
+exit 1
+fi
+done
+
+
 SUDOERS_DEPLOYFILE="/etc/sudoers.d/automate-deploy"
 SSHDIR=".ssh"
 USER_SSH_DIR="$HOMEDIR/$USERNAME/$SSHDIR"
 USER_HOME="$HOMEDIR/$USERNAME"
-SSH_PUB_KEY1=${SSH_PUB_KEY1:-ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDRTnJn7fp32e3pitCOW5vuo4NB3wZw4arz286mk4CR/PzNyQvLE4YBKhSKCLg0Cw7iP2E8xLmUtDemjEKQZALzGZRTCDQN4Qqs4M0NFYiL1G5kYA806R6qCVxjhrQG85AK0AW5nk/rVw4IgD2/y4ojmhGCvbdW9nN522r8nZjs4d175nMyJRfohOqrNZAz/dD1Ph8U5kljg/Jz80A4t6x9E6Rl+8VolKnvo7U/k4yGWOhxsj6KutqFmdJVaiP+UCL9y8FeM4qHsVe5MpQGN+RxANhDf0OiMHZh9l0ani2Gqf3HyCbHJgE98aA1TNxVi0fJUy0gOfAsM7hzj3TxY5yR FOWLKS@AVPHR-2F1SP32}
+
+for var in SSH_PUB_KEY1 USERNAME MAIN_EMAIL FROM_EMAIL MAIN_GUN_KEY MAIN_GUN_DOMAIN; do
+eval 'val=$'"$var"
+if [ -z "$val" ]; then
+curl -s --user "api:${MAIN_FUN_KEY}" \
+https://api.mailgun.net/v3/"${MAIN_GUN_DOMAIN}"/messages \
+-F from="Excited User <${FROM_EMAIL}>" \
+-F to="${MAIN_EMAIL}" \
+-F subject='FAILED TO CREATE SERVER::VULTR' \
+-F text='SCRIPT FAILED EXECUTION - export variable missing'
+exit 1
+fi
+done
+
+
+
+
 
 RELEASE=$(lsb_release -c | cut -f 2 -d $'\t')
 DISTRO=$(lsb_release -i | cut -f 2 -d $'\t')
