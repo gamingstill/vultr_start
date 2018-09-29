@@ -29,7 +29,7 @@ DISTRO=$(lsb_release -i | cut -f 2 -d $'\t')
 main()
 {
   checkForEnv
-  okstuff
+  okStuff
 }
 
 
@@ -37,7 +37,7 @@ main()
 
 
 
-checkforenv(){
+checkForEnv(){
 # if the enviorment variable are not set properly just quit and send an email!!
 for var in SSH_PUB_KEY1 USERNAME MAIL_TO_EMAIL MAIL_FROM_EMAIL MAIL_GUN_KEY MAIL_GUN_DOMAIN; do
 eval 'val=$'"$var"
