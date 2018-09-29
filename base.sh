@@ -142,7 +142,7 @@ check_errs $? "Failed to configure ufw #2"
 ufw allow 443
 check_errs $? "Failed to configure ufw #3"
 
-ufw allow 9252
+ufw allow 4444
 check_errs $? "Failed to configure ufw #4"
 
 ufw enable
