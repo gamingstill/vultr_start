@@ -17,50 +17,50 @@ MAIL_GUN_DOMAIN='kark.io'
 MAIL_GUN_KEY=${MAIL_GUN_KEY}
 MAIL_TO_EMAIL=${MAIL_TO_EMAIL}
 MAIL_FROM_EMAIL=${MAIL_FROM_EMAIL}
+# set some stuff!!!
+SUDOERS_DEPLOYFILE="/etc/sudoers.d/automate-tinygame"
+SSHDIR=".ssh"
+USER_SSH_DIR="$HOMEDIR/$USERNAME/$SSHDIR"
+USER_HOME="$HOMEDIR/$USERNAME"
+RELEASE=$(lsb_release -c | cut -f 2 -d $'\t')
+DISTRO=$(lsb_release -i | cut -f 2 -d $'\t')
 
 
+main()
+{
+  checkForEnv
+  basicStuff
+}
+
+
+checkforenv(){
+# if the enviorment variable are not set properly just quit and send an email!!
 for var in SSH_PUB_KEY1 USERNAME MAIL_TO_EMAIL MAIL_FROM_EMAIL MAIL_GUN_KEY MAIL_GUN_DOMAIN; do
 eval 'val=$'"$var"
 if [ -z "$val" ]; then
+sendErrorMail "FAILED TO CREATE SERVER::VULTR" "SCRIPT FAILED EXECUTION - export variable missing"
+exit 1
+fi
+done
+}
+
+
+sendErrorMail()
+{
 curl -s --user "api:${MAIL_GUN_KEY}" \
 https://api.mailgun.net/v3/"${MAIL_GUN_DOMAIN}"/messages \
 -F from="Fail Server <${MAIL_FROM_EMAIL}>" \
 -F to="${MAIL_TO_EMAIL}" \
--F subject='FAILED TO CREATE SERVER::VULTR' \
--F text='SCRIPT FAILED EXECUTION - export variable missing'
-exit 1
-fi
-done
+-F subject="$1" \
+-F text="$2"
+}
 
 
-SUDOERS_DEPLOYFILE="/etc/sudoers.d/automate-deploy"
-SSHDIR=".ssh"
-USER_SSH_DIR="$HOMEDIR/$USERNAME/$SSHDIR"
-USER_HOME="$HOMEDIR/$USERNAME"
-
-for var in SSH_PUB_KEY1 USERNAME MAIN_EMAIL FROM_EMAIL MAIN_GUN_KEY MAIN_GUN_DOMAIN; do
-eval 'val=$'"$var"
-if [ -z "$val" ]; then
-curl -s --user "api:${MAIN_FUN_KEY}" \
-https://api.mailgun.net/v3/"${MAIN_GUN_DOMAIN}"/messages \
--F from="Excited User <${FROM_EMAIL}>" \
--F to="${MAIN_EMAIL}" \
--F subject='FAILED TO CREATE SERVER::VULTR' \
--F text='SCRIPT FAILED EXECUTION - export variable missing'
-exit 1
-fi
-done
-
-
-
-
-
-RELEASE=$(lsb_release -c | cut -f 2 -d $'\t')
-DISTRO=$(lsb_release -i | cut -f 2 -d $'\t')
 
 echoRed() {
   echo -e "\E[1;31m$1"
   echo -e '\e[0m'
+  sendErrorMail "FAILED TO CREATE SERVER::VULTR" "Something went wrong!!"
 }
 
 echoGreen() {
@@ -95,6 +95,7 @@ check_errs()
       fi
 }
 
+basicStuff(){
 if [ $UID -ne $ROOT_UID ]
 then                                                                                                       
     echoRed "﴾͡๏̯͡๏﴿ O'RLY? Sorry You must be root to run this script... Quiting";
@@ -138,6 +139,7 @@ visudo -c -f $SUDOERS_DEPLOYFILE
 check_errs $? "Validate suders file $SUDOERS_DEPLOYFILE" $SUDOERS_DEPLOYFILE
 
 echoGreen "USER:$USERNAME has been successfully added to custom suders file"
+echoGreen "Basic stuff done!!!!"
+}
 
-echoGreen "Script has been executed successfully"
-exit 0
+main "$@"
