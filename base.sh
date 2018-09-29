@@ -38,7 +38,7 @@ checkforenv(){
 for var in SSH_PUB_KEY1 USERNAME MAIL_TO_EMAIL MAIL_FROM_EMAIL MAIL_GUN_KEY MAIL_GUN_DOMAIN; do
 eval 'val=$'"$var"
 if [ -z "$val" ]; then
-sendErrorMail "FAILED TO CREATE SERVER::VULTR" "SCRIPT FAILED EXECUTION - export variable missing"
+sendErrorMail "FAILED TO CREATE SERVER::VULTR" "SCRIPT FAILED EXECUTION - export variable missing" "FailServer"
 exit 1
 fi
 done
@@ -49,7 +49,7 @@ sendErrorMail()
 {
 curl -s --user "api:${MAIL_GUN_KEY}" \
 https://api.mailgun.net/v3/"${MAIL_GUN_DOMAIN}"/messages \
--F from="Fail Server <${MAIL_FROM_EMAIL}>" \
+-F from="$3 <${MAIL_FROM_EMAIL}>" \
 -F to="${MAIL_TO_EMAIL}" \
 -F subject="$1" \
 -F text="$2"
@@ -60,7 +60,7 @@ https://api.mailgun.net/v3/"${MAIL_GUN_DOMAIN}"/messages \
 echoRed() {
   echo -e "\E[1;31m$1"
   echo -e '\e[0m'
-  sendErrorMail "FAILED TO CREATE SERVER::VULTR" "Something went wrong!!"
+  sendErrorMail "FAILED TO CREATE SERVER::VULTR" "Something went wrong!!" "Fail Server"
 }
 
 echoGreen() {
@@ -140,6 +140,8 @@ check_errs $? "Validate suders file $SUDOERS_DEPLOYFILE" $SUDOERS_DEPLOYFILE
 
 echoGreen "USER:$USERNAME has been successfully added to custom suders file"
 echoGreen "Basic stuff done!!!!"
+
+sendErrorMail "Basic Server Done::VULTR" "Success!!!" "Game Server "
 }
 
 main "$@"
