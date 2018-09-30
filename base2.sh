@@ -104,7 +104,7 @@ echo "$UPGRADE_STATE"
 echo "dsaldasldadasdasdasdasdasdasdasdasdasdassadsadasdadwqerwqrqwrfsfdsfsdfsfsfdssf"
 
     if [ "$UPGRADE_STATE" -eq "1" ]; then
-        apt-get --yes --force-yes update
+        apt-get -y update
         if [ "`echo $?`" -eq "0" ]; then
             echo "package list updated."
             UPGRADE_STATE=2;
@@ -112,21 +112,40 @@ echo "dsaldasldadasdasdasdasdasdasdasdasdasdassadsadasdadwqerwqrqwrfsfdsfsdfsfsf
     fi
 
     if [ "$UPGRADE_STATE" -eq "2" ]; then
-       apt-get --yes --force-yes upgrade
+       apt-get -y upgrade
         if [ "`echo $?`" -eq "0" ]; then
             echo "packages upgraded."
             UPGRADE_STATE=3;
         fi
     fi
     
+    
     if [ "$UPGRADE_STATE" -eq "3" ]; then
+         apt-get -y  install unattended-upgrades
+        if [ "`echo $?`" -eq "0" ]; then
+            echo "unattended-upgrades updated."
+            UPGRADE_STATE=4;
+        fi
+    fi
+
+    if [ "$UPGRADE_STATE" -eq "4" ]; then
+       apt-get -y  install fail2ban
+        if [ "`echo $?`" -eq "0" ]; then
+            echo "fail2ban installed."
+            UPGRADE_STATE=5;
+        fi
+    fi
+    
+    
+    
+    if [ "$UPGRADE_STATE" -eq "5" ]; then
         break
     fi
 
     sleep 10
 done
 
-if [ "$UPGRADE_STATE" -ne "3" ]; then
+if [ "$UPGRADE_STATE" -ne "5" ]; then
     echo "ERROR: packages failed to update after $UPGRADE_ATTEMPT_COUNT attempts."
 else
   echo "SUCCESS: All packages installed.........................................................................."
