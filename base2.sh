@@ -136,16 +136,30 @@ echo "dsaldasldadasdasdasdasdasdasdasdasdasdassadsadasdadwqerwqrqwrfsfdsfsdfsfsf
         fi
     fi
     
-    
-    
     if [ "$UPGRADE_STATE" -eq "5" ]; then
+       curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+        if [ "`echo $?`" -eq "0" ]; then
+            echo "curl nodejs."
+            UPGRADE_STATE=6;
+        fi
+    fi
+    
+    if [ "$UPGRADE_STATE" -eq "6" ]; then
+       sudo apt-get install -y nodejs
+        if [ "`echo $?`" -eq "0" ]; then
+            echo "installing nodejs."
+            UPGRADE_STATE=7;
+        fi
+    fi
+    
+    if [ "$UPGRADE_STATE" -eq "7" ]; then
         break
     fi
 
     sleep 10
 done
 
-if [ "$UPGRADE_STATE" -ne "5" ]; then
+if [ "$UPGRADE_STATE" -ne "7" ]; then
     echo "ERROR: packages failed to update after $UPGRADE_ATTEMPT_COUNT attempts."
 else
   echo "SUCCESS: All packages installed.........................................................................."
