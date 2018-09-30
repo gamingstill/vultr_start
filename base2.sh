@@ -100,7 +100,7 @@ local UPGRADE_STATE=1
 for i in `seq 1 $UPGRADE_ATTEMPT_COUNT`;
 do
     if [ "$UPGRADE_STATE" -eq "1" ]; then
-        apt-get -y update
+        apt-get --yes --force-yes update
         if [ "`echo $?`" -eq "0" ]; then
             echo "package list updated."
             UPGRADE_STATE=2;
@@ -108,23 +108,107 @@ do
     fi
 
     if [ "$UPGRADE_STATE" -eq "2" ]; then
-        apt-get -y upgrade
+       apt-get --yes --force-yes upgrade
         if [ "`echo $?`" -eq "0" ]; then
-            echo "packages updated."
+            echo "packages upgraded."
             UPGRADE_STATE=3;
         fi
     fi
-
+    
     if [ "$UPGRADE_STATE" -eq "3" ]; then
+       apt-get --yes --force-yes install debconf-doc
+        if [ "`echo $?`" -eq "0" ]; then
+            echo "debconf-doc installed."
+            UPGRADE_STATE=4;
+        fi
+    fi
+    
+    if [ "$UPGRADE_STATE" -eq "4" ]; then
+       apt-get --yes --force-yes install unattended-upgrades
+        if [ "`echo $?`" -eq "0" ]; then
+            echo "unattended upgrades installed."
+            UPGRADE_STATE=5;
+        fi
+    fi
+    
+    if [ "$UPGRADE_STATE" -eq "5" ]; then
+      apt-get --yes --force-yes install fail2ban
+        if [ "`echo $?`" -eq "0" ]; then
+            echo "fail2ban installed."
+            UPGRADE_STATE=6;
+        fi
+    fi
+    
+    if [ "$UPGRADE_STATE" -eq "6" ]; then
         break
     fi
 
     sleep 5
 done
 
-if [ "$UPGRADE_STATE" -ne "3" ]; then
+if [ "$UPGRADE_STATE" -ne "6" ]; then
     echo "ERROR: packages failed to update after $UPGRADE_ATTEMPT_COUNT attempts."
 fi
+
+
+truncate -s 0 /etc/apt/apt.conf.d/10periodic
+check_errs $? "Failed to truncate 10periodic"
+
+echo 'APT::Periodic::Update-Package-Lists "1";' >  /etc/apt/apt.conf.d/10periodic
+echo 'APT::Periodic::Download-Upgradeable-Packages "1";' >>  /etc/apt/apt.conf.d/10periodic
+echo 'APT::Periodic::AutocleanInterval "7";' >>  /etc/apt/apt.conf.d/10periodic
+echo 'APT::Periodic::Unattended-Upgrade "1";' >>  /etc/apt/apt.conf.d/10periodic
+
+echo '// Automatically upgrade packages from these (origin, archive) pairs' >>  /etc/apt/apt.conf.d/50unattended-upgrades
+echo 'Unattended-Upgrade::Allowed-Origins {    ' >>  /etc/apt/apt.conf.d/50unattended-upgrades
+echo '    // ${distro_id} and ${distro_codename} will be automatically expanded' >>  /etc/apt/apt.conf.d/50unattended-upgrades
+echo '    "${distro_id} stable";' >>  /etc/apt/apt.conf.d/50unattended-upgrades
+echo '    "${distro_id} ${distro_codename}-security";' >>  /etc/apt/apt.conf.d/50unattended-upgrades
+echo '    "${distro_id} ${distro_codename}-updates";' >>  /etc/apt/apt.conf.d/50unattended-upgrades
+echo '//  "${distro_id} ${distro_codename}-proposed-updates";' >>  /etc/apt/apt.conf.d/50unattended-upgrades
+echo '};' >>  /etc/apt/apt.conf.d/50unattended-upgrades
+
+
+ufw allow 22
+check_errs $? "Failed to configure ufw #1"
+
+ufw allow 80
+check_errs $? "Failed to configure ufw #2"
+
+ufw allow 443
+check_errs $? "Failed to configure ufw #3"
+
+ufw allow 4444
+check_errs $? "Failed to configure ufw #4"
+
+ufw enable
+check_errs $? "Failed to configure ufw #5"
+
+# Secure Node 
+sed -i '/^PermitRootLogin/s/yes/prohibit-password/' /etc/ssh/sshd_config
+check_errs $? "Failed to config sshd config #1"
+
+sed -i "s/.*RSAAuthentication.*/RSAAuthentication yes/g" /etc/ssh/sshd_config
+check_errs $? "Failed to config sshd config #2"
+
+sed -i "s/.*PubkeyAuthentication.*/PubkeyAuthentication yes/g" /etc/ssh/sshd_config
+check_errs $? "Failed to config sshd config #3"
+
+sed -i "s/.*PasswordAuthentication.*/PasswordAuthentication no/g" /etc/ssh/sshd_config
+check_errs $? "Failed to config sshd config #4"
+
+sed -i "s/.*AuthorizedKeysFile.*/AuthorizedKeysFile\t\.ssh\/authorized_keys/g" /etc/ssh/sshd_config
+check_errs $? "Failed to config sshd config #5"
+
+sed -i "s/.*PermitRootLogin.*/PermitRootLogin no/g" /etc/ssh/sshd_config
+check_errs $? "Failed to config sshd config #6"
+
+sshd -t
+check_errs $? "Failed sshd config is not valid"
+
+service sshd restart
+check_errs $? "Failed to restart sshd"
+sendErrorMail "Basic Server Done::VULTR" "Success!!!" "Game Server"
 }
 
 main "$@"
