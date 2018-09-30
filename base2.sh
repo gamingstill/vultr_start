@@ -100,7 +100,7 @@ local UPGRADE_STATE=1
 for i in `seq 1 $UPGRADE_ATTEMPT_COUNT`;
 do
 
-echo "$UPGRADE_ATTEMPT_COUNT"
+echo "$UPGRADE_STATE"
 echo "dsaldasldadasdasdasdasdasdasdasdasdasdassadsadasdadwqerwqrqwrfsfdsfsdfsfsfdssf"
 
     if [ "$UPGRADE_STATE" -eq "1" ]; then
