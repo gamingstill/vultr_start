@@ -32,11 +32,6 @@ main()
   okStuff
 }
 
-
-
-
-
-
 checkForEnv(){
 # if the enviorment variable are not set properly just quit and send an email!!
 for var in SSH_PUB_KEY1 USERNAME MAIL_TO_EMAIL MAIL_FROM_EMAIL MAIL_GUN_KEY MAIL_GUN_DOMAIN; do
@@ -100,18 +95,29 @@ check_errs()
 
 okStuff()
 {
+ while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
+  sleep 0.5
+ done
 apt-get --yes --force-yes update
 check_errs $? "Failed to apt-get update"
-
+while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
+  sleep 0.5
+ done
 apt-get --yes --force-yes upgrade
 check_errs $? "Failed to apt-get upgrade"
-
+while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
+  sleep 0.5
+ done
 apt-get --yes --force-yes install debconf-doc
 check_errs $? "Failed to apt-get debconf-doc"
-
+while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
+  sleep 0.5
+ done
 apt-get --yes --force-yes install unattended-upgrades
 check_errs $? "Failed to configure unattended-upgrades"
-
+while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
+  sleep 0.5
+ done
 truncate -s 0 /etc/apt/apt.conf.d/10periodic
 check_errs $? "Failed to truncate 10periodic"
 
@@ -129,6 +135,10 @@ echo '    "${distro_id} ${distro_codename}-updates";' >>  /etc/apt/apt.conf.d/50
 echo '//  "${distro_id} ${distro_codename}-proposed-updates";' >>  /etc/apt/apt.conf.d/50unattended-upgrades
 echo '};' >>  /etc/apt/apt.conf.d/50unattended-upgrades
 
+while fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
+  sleep 0.5
+ done
+ 
 apt-get --yes --force-yes install fail2ban
 check_errs $? "Failed to install fail2ban"
 
