@@ -120,38 +120,16 @@ echo "dsaldasldadasdasdasdasdasdasdasdasdasdassadsadasdadwqerwqrqwrfsfdsfsdfsfsf
     fi
     
     if [ "$UPGRADE_STATE" -eq "3" ]; then
-       apt-get --yes --force-yes install debconf-doc
-        if [ "`echo $?`" -eq "0" ]; then
-            echo "debconf-doc installed."
-            UPGRADE_STATE=4;
-        fi
-    fi
-    
-    if [ "$UPGRADE_STATE" -eq "4" ]; then
-       apt-get --yes --force-yes install unattended-upgrades
-        if [ "`echo $?`" -eq "0" ]; then
-            echo "unattended upgrades installed."
-            UPGRADE_STATE=5;
-        fi
-    fi
-    
-    if [ "$UPGRADE_STATE" -eq "5" ]; then
-      apt-get --yes --force-yes install fail2ban
-        if [ "`echo $?`" -eq "0" ]; then
-            echo "fail2ban installed."
-            UPGRADE_STATE=6;
-        fi
-    fi
-    
-    if [ "$UPGRADE_STATE" -eq "6" ]; then
         break
     fi
 
-    sleep 5
+    sleep 10
 done
 
-if [ "$UPGRADE_STATE" -ne "6" ]; then
+if [ "$UPGRADE_STATE" -ne "3" ]; then
     echo "ERROR: packages failed to update after $UPGRADE_ATTEMPT_COUNT attempts."
+else
+  echo "SUCCESS: All packages installed.........................................................................."
 fi
 
 
