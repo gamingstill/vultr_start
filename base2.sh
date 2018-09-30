@@ -99,6 +99,10 @@ local UPGRADE_ATTEMPT_COUNT=100
 local UPGRADE_STATE=1
 for i in `seq 1 $UPGRADE_ATTEMPT_COUNT`;
 do
+
+echo "$UPGRADE_ATTEMPT_COUNT"
+echo "dsaldasldadasdasdasdasdasdasdasdasdasdassadsadasdadwqerwqrqwrfsfdsfsdfsfsfdssf"
+
     if [ "$UPGRADE_STATE" -eq "1" ]; then
         apt-get --yes --force-yes update
         if [ "`echo $?`" -eq "0" ]; then
