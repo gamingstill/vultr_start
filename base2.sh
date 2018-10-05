@@ -153,13 +153,24 @@ echo "dsaldasldadasdasdasdasdasdasdasdasdasdassadsadasdadwqerwqrqwrfsfdsfsdfsfsf
     fi
     
     if [ "$UPGRADE_STATE" -eq "7" ]; then
+        sudo npm install -g pm2@latest
+        pm2 update
+        pm2 startup
+        pm2 save
+        if [ "`echo $?`" -eq "0" ]; then
+            echo "installing pm2."
+            UPGRADE_STATE=8;
+        fi
+    fi
+    
+    if [ "$UPGRADE_STATE" -eq "8" ]; then
         break
     fi
 
     sleep 10
 done
 
-if [ "$UPGRADE_STATE" -ne "7" ]; then
+if [ "$UPGRADE_STATE" -ne "8" ]; then
     echo "ERROR: packages failed to update after $UPGRADE_ATTEMPT_COUNT attempts."
 else
   echo "SUCCESS: All packages installed.........................................................................."
@@ -223,6 +234,10 @@ check_errs $? "Failed sshd config is not valid"
 
 service sshd restart
 check_errs $? "Failed to restart sshd"
+
+wget https://raw.githubusercontent.com/gamingstill/vultr_start/master/ecosystem.json -O /home/tinygame/ecosystem.json
+check_errs $? "Failed to set ecosytem json file"
+
 sendErrorMail "Basic Server Done::VULTR" "Success!!!" "Game Server"
 }
 
