@@ -15,6 +15,7 @@ SSH_PUB_KEY1=${SSH_PUB_KEY1}
 #Mail gun exports
 MAIL_GUN_DOMAIN='kark.io'
 MAIL_GUN_KEY=${MAIL_GUN_KEY}
+POST_LOC = ${POST_LOC}
 MAIL_TO_EMAIL=${MAIL_TO_EMAIL}
 MAIL_FROM_EMAIL=${MAIL_FROM_EMAIL}
 # set some stuff!!!
@@ -247,6 +248,7 @@ wget https://raw.githubusercontent.com/gamingstill/vultr_start/master/ecosystem.
 check_errs $? "Failed to set ecosytem json file"
 
 sendErrorMail "Basic Server Done::VULTR" "Success!!!" "Game Server"
+curl -X POST POST_LOC
 }
 
 main "$@"
