@@ -152,25 +152,33 @@ echo "dsaldasldadasdasdasdasdasdasdasdasdasdassadsadasdadwqerwqrqwrfsfdsfsdfsfsf
         fi
     fi
     
-    if [ "$UPGRADE_STATE" -eq "7" ]; then
+     if [ "$UPGRADE_STATE" -eq "7" ]; then
+       sudo apt-get install -y git
+        if [ "`echo $?`" -eq "0" ]; then
+            echo "installing git."
+            UPGRADE_STATE=8;
+        fi
+    fi
+    
+    if [ "$UPGRADE_STATE" -eq "8" ]; then
         sudo npm install -g pm2@latest
         pm2 update
         pm2 startup
         pm2 save
         if [ "`echo $?`" -eq "0" ]; then
             echo "installing pm2."
-            UPGRADE_STATE=8;
+            UPGRADE_STATE=9;
         fi
     fi
     
-    if [ "$UPGRADE_STATE" -eq "8" ]; then
+    if [ "$UPGRADE_STATE" -eq "9" ]; then
         break
     fi
 
     sleep 10
 done
 
-if [ "$UPGRADE_STATE" -ne "8" ]; then
+if [ "$UPGRADE_STATE" -ne "9" ]; then
     echo "ERROR: packages failed to update after $UPGRADE_ATTEMPT_COUNT attempts."
 else
   echo "SUCCESS: All packages installed.........................................................................."
