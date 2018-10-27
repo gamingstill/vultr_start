@@ -1,3 +1,12 @@
 {
-sh:"ddd"
+  apps : [{
+    name        : "karkio",
+    script      : "./karkio/bin/www",
+    env: {
+      "NODE_ENV": "production",
+    },
+    env_production : {
+       "NODE_ENV": "production"
+    }
+  }]
 }
