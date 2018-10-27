@@ -248,7 +248,7 @@ wget https://raw.githubusercontent.com/gamingstill/vultr_start/master/ecosystem.
 check_errs $? "Failed to set ecosytem json file"
 
 sendErrorMail "Basic Server Done::VULTR" "Success!!!" "Game Server"
-curl POST_LOC
+curl http://balancer.kark.io/serverready
 }
 
 main "$@"
